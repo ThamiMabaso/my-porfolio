@@ -81,6 +81,42 @@
             width: 100%;
         }
 
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile dropdown menu styles */
+        .nav-links.mobile-active {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            flex-direction: column;
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            gap: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .hero {
             min-height: 100vh;
             display: flex;
@@ -123,6 +159,47 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* Profile image styles */
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            overflow: hidden;
+            border: 4px solid #64ffda;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Placeholder for when no image is set */
+        .profile-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #64ffda, #00bcd4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .hero h1 {
@@ -415,9 +492,17 @@
             border-top: 1px solid #333;
         }
 
-        .mobile-menu {
-            display: none;
-            color: #e0e0e0;
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #64ffda, #00bcd4);
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            z-index: 9999;
         }
 
         @media (max-width: 768px) {
@@ -425,16 +510,25 @@
                 display: none;
             }
             
+            .nav-links.mobile-active {
+                display: flex;
+            }
+            
             .mobile-menu {
                 display: block;
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
             }
             
             .hero h1 {
                 font-size: 2.5rem;
+            }
+
+            .profile-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .profile-placeholder {
+                font-size: 3rem;
             }
             
             .about-content {
@@ -454,19 +548,10 @@
             .projects-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        .scroll-indicator {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #64ffda, #00bcd4);
-            transform-origin: left;
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-            z-index: 9999;
+            nav {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -476,7 +561,7 @@
     <header>
         <nav>
             <div class="logo">Thami Mabaso</div>
-            <ul class="nav-links">
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#experience">Experience</a></li>
@@ -484,13 +569,19 @@
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#education">Education</a></li>
             </ul>
-            <button class="mobile-menu">☰</button>
+            <button class="mobile-menu" id="mobileMenu">☰</button>
         </nav>
     </header>
 
     <main>
         <section id="home" class="hero">
             <div class="hero-content">
+                <div class="profile-image">
+                    <!-- Replace the src with your actual image path -->
+                    <!-- <img src="your-profile-image.jpg" alt="Thami Mabaso"> -->
+                    <!-- Placeholder - remove this div when you add your image -->
+                    <div class="profile-placeholder">TM</div>
+                </div>
                 <h1>Thami Mabaso</h1>
                 <p>Quality Assurance Engineer | Software Developer</p>
                 <a href="#about" class="cta-button">Get to Know Me</a>
@@ -673,7 +764,7 @@
     </footer>
 
     <script>
-        
+     
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -684,16 +775,24 @@
                         block: 'start'
                     });
                 }
+                
+             
+                const navLinks = document.getElementById('navLinks');
+                const mobileMenu = document.getElementById('mobileMenu');
+                if (navLinks.classList.contains('mobile-active')) {
+                    navLinks.classList.remove('mobile-active');
+                    mobileMenu.innerHTML = '☰';
+                }
             });
         });
 
-       
+        
         window.addEventListener('scroll', () => {
             const scrolled = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
             document.querySelector('.scroll-indicator').style.transform = `scaleX(${scrolled / 100})`;
         });
 
-       
+      
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -708,7 +807,7 @@
             });
         }, observerOptions);
 
-        
+       
         document.querySelectorAll('.experience-item, .skill-category, .project-card, .education-item').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(30px)';
@@ -716,9 +815,29 @@
             observer.observe(el);
         });
 
-        document.querySelector('.mobile-menu').addEventListener('click', function() {
-            const navLinks = document.querySelector('.nav-links');
-            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+      
+        document.getElementById('mobileMenu').addEventListener('click', function() {
+            const navLinks = document.getElementById('navLinks');
+            const isActive = navLinks.classList.contains('mobile-active');
+            
+            if (isActive) {
+                navLinks.classList.remove('mobile-active');
+                this.innerHTML = '☰';
+            } else {
+                navLinks.classList.add('mobile-active');
+                this.innerHTML = '✕';
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            const navLinks = document.getElementById('navLinks');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const nav = document.querySelector('nav');
+            
+            if (!nav.contains(e.target) && navLinks.classList.contains('mobile-active')) {
+                navLinks.classList.remove('mobile-active');
+                mobileMenu.innerHTML = '☰';
+            }
         });
     </script>
 </body>
